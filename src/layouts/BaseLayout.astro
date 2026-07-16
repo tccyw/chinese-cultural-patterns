@@ -1,0 +1,45 @@
+---
+import { siteMeta } from "@/data/site";
+import "@/styles/global.css";
+
+type Props = {
+  title?: string;
+  description?: string;
+};
+
+const { title = siteMeta.title, description = siteMeta.description } = Astro.props;
+const pageTitle = title === siteMeta.title ? title : `${title}｜${siteMeta.title}`;
+const base = import.meta.env.BASE_URL.endsWith("/")
+  ? import.meta.env.BASE_URL
+  : `${import.meta.env.BASE_URL}/`;
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content={description} />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{pageTitle}</title>
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href={base}>
+        <span class="brand-mark" aria-hidden="true">文</span>
+        <span>{siteMeta.title}</span>
+      </a>
+      <nav aria-label="主导航">
+        <a href={base}>档案</a>
+        <a href={`${base}cases/public-symbols/`}>公共符号专题</a>
+        <a href={`${base}methodology/`}>方法</a>
+      </nav>
+    </header>
+    <main>
+      <slot />
+    </main>
+    <footer class="site-footer">
+      <p>原创 SVG、文本和结构化数据默认 CC BY 4.0；代码 MIT。第三方资料只链接，不搬运。</p>
+      <a href={siteMeta.repo}>GitHub</a>
+    </footer>
+  </body>
+</html>

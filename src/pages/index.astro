@@ -1,0 +1,100 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { patterns } from "@/data/patterns";
+
+const categories = [...new Set(patterns.map((pattern) => pattern.category))];
+const eras = [...new Set(patterns.flatMap((pattern) => pattern.activeEras))];
+const base = import.meta.env.BASE_URL.endsWith("/")
+  ? import.meta.env.BASE_URL
+  : `${import.meta.env.BASE_URL}/`;
+---
+
+<BaseLayout>
+  <section class="page-shell">
+    <div class="intro">
+      <div>
+        <h1>中华文化图样档案</h1>
+        <p>
+          首批整理 12 个高识别度图样谱系，用原创 SVG 重构、公开来源和结构化字段，
+          为公众理解、设计引用和知识产权边界讨论提供可追溯材料。
+        </p>
+      </div>
+      <aside class="stat-panel" aria-label="档案统计">
+        <div class="stat"><strong>{patterns.length}</strong><span>首批图样谱系</span></div>
+        <div class="stat"><strong>36+</strong><span>来源与线索</span></div>
+        <div class="stat"><strong>SVG</strong><span>原创重构图</span></div>
+        <div class="stat"><strong>A-D</strong><span>来源可信度</span></div>
+      </aside>
+    </div>
+
+    <div class="archive-app" data-archive>
+      <div class="toolbar" aria-label="筛选图样">
+        <input data-search type="search" placeholder="搜索名称、别名、时代、载体" aria-label="搜索图样" />
+        <select data-era aria-label="按时代筛选">
+          <option value="">全部时代</option>
+          {eras.map((era) => <option value={era}>{era}</option>)}
+        </select>
+        <select data-category aria-label="按门类筛选">
+          <option value="">全部门类</option>
+          {categories.map((category) => <option value={category}>{category}</option>)}
+        </select>
+      </div>
+
+      <div class="pattern-grid" data-grid>
+        {
+          patterns.map((pattern) => (
+            <a
+              class="pattern-card"
+              href={`${base}patterns/${pattern.id}/`}
+              data-card
+              data-search-text={`${pattern.title} ${pattern.aliases.join(" ")} ${pattern.category} ${pattern.activeEras.join(" ")} ${pattern.carriers.join(" ")} ${pattern.summary}`}
+              data-era={pattern.activeEras.join("|")}
+              data-category={pattern.category}
+            >
+              <div class="pattern-image">
+                <img src={`${base}${pattern.variants[0].svgAsset.slice(1)}`} alt={`${pattern.title}原创重构图`} />
+              </div>
+              <article>
+                <div class="meta-row">
+                  <span class="chip">{pattern.category}</span>
+                  <span class="chip">{pattern.earliestEra}</span>
+                </div>
+                <h2>{pattern.title}</h2>
+                <p>{pattern.summary}</p>
+                <div class="chips">
+                  {pattern.carriers.slice(0, 4).map((carrier) => <span class="chip">{carrier}</span>)}
+                </div>
+                <span class="source-count">{pattern.references.length} 条参考资料</span>
+              </article>
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+  <script>
+    const root = document.querySelector("[data-archive]");
+    const search = root?.querySelector("[data-search]") as HTMLInputElement | null;
+    const era = root?.querySelector("[data-era]") as HTMLSelectElement | null;
+    const category = root?.querySelector("[data-category]") as HTMLSelectElement | null;
+    const cards = [...(root?.querySelectorAll("[data-card]") ?? [])] as HTMLElement[];
+
+    function applyFilters() {
+      const query = search?.value.trim().toLowerCase() ?? "";
+      const selectedEra = era?.value ?? "";
+      const selectedCategory = category?.value ?? "";
+
+      for (const card of cards) {
+        const text = card.dataset.searchText?.toLowerCase() ?? "";
+        const eraMatch = !selectedEra || card.dataset.era?.split("|").includes(selectedEra);
+        const categoryMatch = !selectedCategory || card.dataset.category === selectedCategory;
+        const queryMatch = !query || text.includes(query);
+        card.hidden = !(eraMatch && categoryMatch && queryMatch);
+      }
+    }
+
+    search?.addEventListener("input", applyFilters);
+    era?.addEventListener("change", applyFilters);
+    category?.addEventListener("change", applyFilters);
+  </script>
+</BaseLayout>

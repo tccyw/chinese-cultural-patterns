@@ -30,11 +30,11 @@ const base = import.meta.env.BASE_URL.endsWith("/")
     <div class="archive-app" data-archive>
       <div class="toolbar" aria-label="筛选图样">
         <input data-search type="search" placeholder="搜索名称、别名、时代、载体" aria-label="搜索图样" />
-        <select data-era aria-label="按时代筛选">
+        <select data-era-filter aria-label="按时代筛选">
           <option value="">全部时代</option>
           {eras.map((era) => <option value={era}>{era}</option>)}
         </select>
-        <select data-category aria-label="按门类筛选">
+        <select data-category-filter aria-label="按门类筛选">
           <option value="">全部门类</option>
           {categories.map((category) => <option value={category}>{category}</option>)}
         </select>
@@ -75,8 +75,8 @@ const base = import.meta.env.BASE_URL.endsWith("/")
   <script>
     const root = document.querySelector("[data-archive]");
     const search = root?.querySelector("[data-search]") as HTMLInputElement | null;
-    const era = root?.querySelector("[data-era]") as HTMLSelectElement | null;
-    const category = root?.querySelector("[data-category]") as HTMLSelectElement | null;
+    const era = root?.querySelector("[data-era-filter]") as HTMLSelectElement | null;
+    const category = root?.querySelector("[data-category-filter]") as HTMLSelectElement | null;
     const cards = [...(root?.querySelectorAll("[data-card]") ?? [])] as HTMLElement[];
 
     function applyFilters() {
